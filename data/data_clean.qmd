@@ -1,0 +1,170 @@
+---
+title: "data clean"
+format: html
+editor: visual
+---
+
+## Libraries
+
+```{r}
+library(tidyverse)
+library(readr)
+library(broom)
+```
+
+## Data
+
+```{r}
+raw_recs <- read_csv("data/RECS/recs2020_public_v7.csv") %>% janitor::clean_names()
+```
+
+## Variable selection
+
+```{r}
+recs<- raw_recs %>% 
+  select(!starts_with("z")) %>% # drop imputation indicator
+  rename(final_nweight = nweight,
+         cost = totaldol,
+         evhome = evchrghome,
+         energyassist = energyasst,
+         finishbase = basefin,
+         outbulb = lgtoutany,
+         lightmore8=lgtinmore8,
+         led = lgtinled) %>% 
+  select(!starts_with("btu")) %>% 
+  select(!starts_with("nweight")) %>% 
+  select(!starts_with("dol")) %>% 
+  select(!ends_with("btu")) %>% 
+  select(!starts_with("totalbtu")) %>% 
+  select(!starts_with("kwh")) %>% 
+  select(!starts_with("gallon")) %>% 
+  select(!starts_with("cufeetng")) %>% 
+  select(!starts_with("period")) %>% 
+  select(!starts_with("totaldol")) %>% 
+  select(-c(regionc, state_fips, state_postal, iecc_climate_code, usehumid, useel, elother,elwater,elwarm,elfood,elcool,dvd,vcr,dbt99,dbt1,crawl,cooktopindt,combodvr,coldma,cellphone,cellar,cablesat,blender,atticfan,atticfin,appother,woodtype,tothsqft,totcsqft,tvonwe2,tvonwe3,tvonwd2,tvonwd3,tvsize2,tvsize3,tvtype2,tvtype3,ugoth,useequipaux,usecoffee,topfront,studio,sqftrange,smartspk,sizrfri2,sepdvr,poolpump,playsta,outlet,oven,ovenfuel,rangefuel,rangeindt,range,othrooms,origwin,nummeal,numtablet,numsmphone,numlaptop,nhafbath,monpool,lpother,locrfri2,intstream,ice,usehumid,numporthum,h2omain,h2oapt,gargheat,gargcool,foother,uprtfrzr,tvaudiosys,freezer,cooktopfuel,cooktop,agerfri2, usecfan, humidtype, dehumtype, usedehum,numportdehum, dwcycle, dryrfuel, heatapt, cwasher,heathome, dntheat, aircond,coolapt)) %>%
+  select(!starts_with("ev")) %>% 
+  select(!starts_with("energyasst")) %>% 
+  select(!starts_with("base")) %>% 
+  select(!starts_with("attc")) %>% 
+  select(!starts_with("acequip")) %>% 
+  select(!starts_with("tvuse")) %>% 
+  select(!starts_with("tl")) %>% 
+  select(!starts_with("ss")) %>% 
+  select(!starts_with("sqftin")) %>% 
+  select(!starts_with("outgrill")) %>% 
+  select(!starts_with("fuel")) %>% 
+  select(!starts_with("more")) %>% 
+  select(!starts_with("lgtout")) %>% 
+  select(!starts_with("lgtin")) %>% 
+  select(!starts_with("intype")) %>% 
+  select(!starts_with("equipaux")) %>% 
+  select(!starts_with("typerfr")) %>% 
+  select(!ends_with("pay"))
+```
+
+## Clean missing values
+
+```{r}
+# turn <0 to NA
+recs <- recs %>% 
+  mutate(across(c(typetherm, tvtype1, tvsize1, starts_with("temp"), stories, solar, sizrfri1, sizfreez, sizeofgarage, rooftype, highceil, equipm, washtemp),~ifelse(.<0, NA, .)))
+
+# turn <0 to 0
+recs <- recs %>% 
+  mutate(across(c(whypowerout, wheatbkt, tvonwe1, tvonwd1, telldays, swimpool, rovenuse, rcookuse, prkgplc1, payhelp, ovenuse, starts_with("num"), starts_with("no"), montub, intdataacc, housefan, heatcntl, geohp, dwashuse, dryruse, coolcntl, cooktopuse, concrete, finishbase, attic, amtmicro, washload),~ifelse(.<0, 0, .)))
+
+# turn <0 to other values
+recs <- recs %>% 
+  mutate(smartmeter = ifelse(smartmeter<0, 2, smartmeter),
+         across(c(equipage, starts_with("age")),~ifelse(.<0, 1,.)))
+```
+
+## Turn character and numeric variables to nominal
+```{r}
+nominal_var <- recs %>% 
+  select(-c(washload, tvcolor, totsqft_en, totrooms, cost, tvonwe1, tvonwd1, starts_with("temp"), telldays, sqftest, rovenuse, rcookuse, ovenuse, final_nweight, starts_with("num"), noheatdays, noacdays, nhsldmem, ncombath, montub, micro, lightmore8, hhage, hdd65, hdd30yr_pub, gwt, elperiph, dwashuse, dryruse, door1sum, doeid, desktop, cooktopuse, cdd65, cdd30yr_pub, bedrooms, amtmicro)) %>% 
+  colnames()
+
+recs <- recs %>% 
+  mutate(across(all_of(nominal_var),~as.factor(.)))
+```
+
+## Remove highly-missing variables to create a dataset for parametric methods
+```{r}
+# check missing values
+missing_rate <- recs %>%
+  summarize(across(everything(), ~mean(is.na(.)))) %>%
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "missing_rate") %>%
+  arrange(desc(missing_rate))
+
+high_missing <- missing_rate %>% 
+  filter(missing_rate>0.2) %>% 
+  pull(variable)
+
+para_recs <- recs %>% 
+  select(-all_of(high_missing))
+```
+
+```{r}
+lmrecs<-para_recs %>% 
+  select(-doeid)
+model <- lm(cost ~ ., data = lmrecs)
+summary(model)
+linearmodel <-tidy(model)
+```
+
+## Continuance
+
+```{r}
+# dist of totalcost
+recs_clean %>%
+  ggplot(aes(x = cost)) +
+  geom_histogram(bins = 50, fill = "skyblue", color = "black") +
+  scale_x_log10() +
+  theme_minimal() +
+  labs(title = "Distribution of Annual Energy Cost", x = "Energy Cost (log scale)", y = "Count")
+
+# dist of solar panel
+recs_clean %>%
+  filter(!is.na(SOLAR)) %>% 
+  ggplot(aes(x = factor(SOLAR))) +
+  geom_bar(fill = "orange") +
+  theme_minimal() +
+  labs(title = "Solar Panel Ownership", x = "Solar", y = "Count")
+
+# energy assistance
+recs_clean %>%
+  ggplot(aes(x = factor(ENERGYASST))) +
+  geom_bar(fill = "tomato") +
+  theme_minimal() +
+  labs(title = "Received Energy Assistance in 2020",
+       x = "Energy Assistance", y = "Count")
+
+# total cost by solar panel
+recs_clean %>%
+  filter(!is.na(SOLAR), !is.na(cost)) %>%
+  ggplot(aes(x = factor(SOLAR), y = cost)) +
+  geom_boxplot(fill = "skyblue") +
+  scale_y_log10() +
+  labs(title = "Electricity Cost by Solar Ownership",
+       x = "Solar Panel (0=No, 1=Yes)", y = "Total Energy Cost (log)")
+
+# 堆叠柱状图
+recs_clean %>%
+  filter(!is.na(SOLAR), !is.na(ENERGYASST)) %>%
+  mutate(SOLAR = factor(SOLAR, labels = c("No Solar", "Has Solar")),
+         ENERGYASST = factor(ENERGYASST, labels = c("No Assistance", "Received Assistance"))) %>%
+  ggplot(aes(x = SOLAR, fill = ENERGYASST)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Energy Assistance by Solar Panel Ownership",
+       x = "Solar Panel", y = "Proportion",
+       fill = "Energy Assistance") +
+  theme_minimal()
+
+```
+
+```{r}
+combined <- left_join(recs_clean, nri, by = c(""= ""))
+```
+payhelp
