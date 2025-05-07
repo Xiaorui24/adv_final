@@ -52,10 +52,6 @@ rsconnect/
 .DS_Store
 data/.DS_Store
 
-# output
-*.html
-*.csv
-
 # RStudio 
 .Rproj.user/
 
