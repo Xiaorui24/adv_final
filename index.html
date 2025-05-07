@@ -3125,6 +3125,29 @@ vertical-align: -.125em;
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cobalt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<section id="background" class="level2">
+<h2 class="anchored" data-anchor-id="background">Background</h2>
+<p>In recent years, the issue of rising household energy bills has garnered increasing attention in the United States. As <a href="https://pioneerec.com/4-key-factors-that-affect-energy-bills/">Pioneer Energy</a> outlines, several critical factors contribute to household energy expenses: <strong>home size</strong>, <strong>insulation quality</strong>, <strong>appliance efficiency</strong>, and <strong>weather/climate</strong>. Likewise, <a href="https://www.electricchoice.com/blog/8-key-factors-impact-electricity-prices/">ElectricChoice.com</a> identifies broader drivers such as <strong>fuel prices</strong>, <strong>power plant operations</strong>, <strong>transmission infrastructure</strong>, and <strong>government regulations</strong>.</p>
+<p>These insights help explain why household energy costs vary widely across income levels, housing characteristics, and geographic regions. This variation is also evident in our dataset from the Residential Energy Consumption Survey (RECS), which we use in this project.</p>
+</section>
+<section id="our-project" class="level2">
+<h2 class="anchored" data-anchor-id="our-project">Our Project</h2>
+<p>Our research aims to analyze energy cost disparities and evaluate the potential impact of <strong>solar panel adoption</strong> as well as a proposed <strong>energy credit policy</strong> targeting vulnerable households. The project includes:</p>
+<ol type="1">
+<li><strong>Descriptive analysis</strong> of household energy cost patterns by income, house size, and solar ownership.</li>
+<li><strong>Machine learning models</strong> (Lasso, Random Forest, and XGBoost) to predict household annual energy cost.</li>
+<li><strong>Nonparametric causal inference methods</strong> (nearest-neighbor matching and permutation testing) to estimate the effect of solar panels on energy cost.</li>
+<li><strong>A microsimulation policy tool</strong> to calculate and simulate targeted energy credit allocations.</li>
+</ol>
+</section>
+<section id="key-findings" class="level2">
+<h2 class="anchored" data-anchor-id="key-findings">Key Findings</h2>
+<ul>
+<li><strong>Prediction Models:</strong> Random Forest provided the best performance in predicting household energy cost, highlighting the significance of variables like square footage, climate division, and appliance usage.</li>
+<li><strong>Solar Panel Effect:</strong> Based on matching and permutation testing, households with solar panels spend approximately $468 less per year on energy.</li>
+<li><strong>Microsimulation:</strong> A credit policy targeting low-income households with high energy burdens could reduce cost inequity but would require $936 million annually.</li>
+</ul>
+</section>
 <section id="data" class="level2">
 <h2 class="anchored" data-anchor-id="data">Data</h2>
 <div class="cell">
@@ -3546,7 +3569,7 @@ Source: <a href="https://www.eia.gov/consumption/residential/data/2020/">2020 Re
 <span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>10.315 sec elapsed</code></pre>
+<pre><code>10.104 sec elapsed</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(lasso_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3627,7 +3650,7 @@ Source: <a href="https://www.eia.gov/consumption/residential/data/2020/">2020 Re
 <span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a><span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>16528.936 sec elapsed</code></pre>
+<pre><code>4878.484 sec elapsed</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(rf_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3906,6 +3929,24 @@ Source: <a href="https://www.eia.gov/consumption/residential/data/2020/">2020 Re
 </div>
 </div>
 <p>The figure displays the density distribution of annual energy cost (in log scale) for matched households, separated by solar panel ownership. After matching on observable characteristics, households with solar panels still show a lower overall cost distribution. The shift of the blue curve (Has Solar) to the left confirms that solar adoption is associated with reduced energy costs even after accounting for structural differences.</p>
+</section>
+<section id="further-discussion" class="level2">
+<h2 class="anchored" data-anchor-id="further-discussion">Further Discussion</h2>
+<section id="determinants-of-electricity-price" class="level3">
+<h3 class="anchored" data-anchor-id="determinants-of-electricity-price">Determinants of Electricity Price</h3>
+<p>Our work aligns with broader findings in the literature on the <strong>complex and interconnected nature of electricity pricing</strong>. According to Girish et al. (2013), key price determinants in competitive electricity markets include demand fluctuations, generation fuel mix, and regulatory policy. <a href="https://www.researchgate.net/publication/306200084_Determinants_of_Electricity_Price_in_Competitive_Power_Market#:~:text=A%20few%20factors%20that%20affect%20the%20price...">See study on ResearchGate</a>.</p>
+<p>This emphasizes that while <strong>individual household characteristics</strong> explain a portion of cost variation, <strong>market-level factors</strong> also play a critical role—highlighting the value of policy simulations to test what can be done within household-level control.</p>
+</section>
+<section id="the-case-for-solar-and-its-limits" class="level3">
+<h3 class="anchored" data-anchor-id="the-case-for-solar-and-its-limits">The Case for Solar — and Its Limits</h3>
+<p>Our dataset shows that <strong>solar panel adoption remains limited</strong>, despite its association with reduced energy cost. This raises important questions: <em>Why isn’t solar more widespread?</em></p>
+<p>There are several possible reasons:</p>
+<ul>
+<li>As <a href="https://www.sunnova.com/watts-up/how-do-solar-panels-work-with-your-electric-bill#:~:text=Yes%2C%20but%3A%20Your%20average%20monthly...">Sunnova</a> notes, solar panels <strong>reduce but don’t eliminate</strong> electric bills entirely, especially for homes that still rely on grid electricity during cloudy days or nights.</li>
+<li>According to <a href="https://www.nerdwallet.com/article/mortgages/solar-panels-electric-bill">NerdWallet</a>, the <strong>upfront cost</strong>, <strong>loan options</strong>, and <strong>roof suitability</strong> can limit solar adoption. The <strong>return on investment</strong> may take years, making it less appealing to lower-income homeowners or renters.</li>
+</ul>
+<p>Thus, while solar is a promising solution, it must be paired with <strong>supportive policies</strong>—like incentives, subsidies, and community solar programs—to achieve widespread impact.</p>
+</section>
 </section>
 </section>
 
