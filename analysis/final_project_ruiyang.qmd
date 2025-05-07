@@ -32,6 +32,9 @@ raw_recs <- readr::read_csv(here("data", "RECS", "recs2020_public_v7.csv")) %>%
   janitor::clean_names()
 ```
 
+This dataset contains household-level energy characteristics on the housing unit, usage patterns, household demographics, and energy bills in 2020. An observation can be uniquely identified by DOEID. This dataset includes both character and numeric columns.\
+Source: [2020 Residential Energy Consumption Survey (RECS)](https://www.eia.gov/consumption/residential/data/2020/)
+
 # Preliminary Data Cleaning
 
 ## Variable selection
@@ -102,7 +105,7 @@ recs <- recs %>%
 # Microsimulation
 
 With a higher annual household energy costs and the inequity among household characteristics, we come up with a new policy initiative aiming to reduce the energy costs of households of low income and high energy costs by providing energy credits. The bullet points are:\
-1. Energy credits are only eligible for households with an annual income lower than \$25,000 and a energy cost per capita higher than \$1,293.\
+1. Energy credits are only eligible for households with an annual income lower than \$25,000 and a energy cost per person higher than \$1,293.\
 2. Household can receive a credit of \$200 or \$120 based on when their house was built.\
 3. Each elderly person can receive a credit of \$600 per year.\
 4. If the household has a medical device in use, the household can receive a credit of \$200 per year.\
