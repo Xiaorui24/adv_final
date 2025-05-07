@@ -55,3 +55,5 @@ data/.DS_Store
 # RStudio 
 .Rproj.user/
 
+.DS_Store
+data/.DS_Store
